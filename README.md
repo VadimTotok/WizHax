@@ -1,7 +1,7 @@
 <h1 align="center">WizHax</h1>
 
 ## How to install
-1. Download the latest .jar from releases
+1. Download the latest .jar from [releases](https://github.com/VadimTotok/WizHax/releases)
 2. Drag it into `~/.minecraft/mods` folder
 2. Launch Minecraft With [Fabric](https://fabricmc.net/) and [Meteor Client](https://meteorclient.com/)
 4. Access modules via Meteor Client GUI
