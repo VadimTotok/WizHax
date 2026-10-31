@@ -1,0 +1,140 @@
+package dev.wisuazt.wizhax.module;
+
+import dev.wisuazt.wizhax.WizHax;
+import meteordevelopment.meteorclient.events.world.TickEvent;
+import meteordevelopment.meteorclient.settings.IntSetting;
+import meteordevelopment.meteorclient.settings.Setting;
+import meteordevelopment.meteorclient.settings.SettingGroup;
+import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.orbit.EventHandler;
+import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.UpdateSelectedSlotC2SPacket;
+import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LightType;
+
+public class AutoTorch extends Module {
+    private final SettingGroup sgGeneral = settings.getDefaultGroup();
+
+    private final Setting<Integer> lightThreshold = sgGeneral.add(new IntSetting.Builder()
+        .name("light-threshold")
+        .description("Place a torch when block light level is at or below this value.")
+        .defaultValue(0)
+        .min(0)
+        .sliderMax(15)
+        .build()
+    );
+
+    private int placeCooldown = 0;
+
+    public AutoTorch() {
+        super(WizHax.WIZHAX, "[WizHax] AutoTorch", "Automatically places torches when block light is too low.");
+    }
+
+    @Override
+    public void onActivate() {
+        placeCooldown = 0;
+    }
+
+    @EventHandler
+    private void onTick(TickEvent.Post event) {
+        if (mc.player == null || mc.world == null || mc.interactionManager == null) return;
+        if (mc.currentScreen != null) return;
+        if (!mc.player.isOnGround()) return;
+
+        if (placeCooldown > 0) {
+            placeCooldown--;
+            return;
+        }
+
+        BlockPos feetPos = mc.player.getBlockPos();
+        if (mc.world.getLightLevel(LightType.BLOCK, feetPos) > lightThreshold.get()) return;
+
+        BlockPos surfacePos = findSurface();
+        if (surfacePos == null) return;
+        if (!mc.world.getBlockState(surfacePos.up()).isAir()) return;
+
+        if (!mc.player.getMainHandStack().isOf(Items.TORCH)) {
+            var inv = mc.player.getInventory();
+            int torchSlot = findTorchInHotbar();
+            if (torchSlot == -1) {
+                int invScreenSlot = findTorchInInventory();
+                if (invScreenSlot == -1) return;
+                torchSlot = findEmptyHotbarSlot();
+                if (torchSlot == -1) torchSlot = 8;
+                var handler = mc.player.playerScreenHandler;
+                mc.interactionManager.clickSlot(handler.syncId, invScreenSlot, torchSlot, SlotActionType.SWAP, mc.player);
+            }
+            inv.setSelectedSlot(torchSlot);
+            mc.player.networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(torchSlot));
+        }
+
+        BlockHitResult hit = new BlockHitResult(
+            Vec3d.ofCenter(surfacePos).add(0, 0.5, 0),
+            Direction.UP,
+            surfacePos,
+            false
+        );
+        mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, hit);
+        mc.player.swingHand(Hand.MAIN_HAND);
+
+        placeCooldown = 10;
+    }
+
+    private BlockPos findSurface() {
+        assert mc.player != null;
+        BlockPos center = mc.player.getBlockPos().down();
+        assert mc.world != null;
+        if (mc.world.getBlockState(center).isSolidBlock(mc.world, center)) return center;
+
+        double x = mc.player.getX();
+        double y = mc.player.getY();
+        double z = mc.player.getZ();
+        int surfaceY = (int) Math.floor(y) - 1;
+        double r = 0.3;
+
+        int[][] corners = {{-1, -1}, {1, -1}, {-1, 1}, {1, 1}};
+        for (int[] c : corners) {
+            BlockPos candidate = new BlockPos(
+                (int) Math.floor(x + c[0] * r),
+                surfaceY,
+                (int) Math.floor(z + c[1] * r)
+            );
+            if (!candidate.equals(center) && mc.world.getBlockState(candidate).isSolidBlock(mc.world, candidate))
+                return candidate;
+        }
+        return null;
+    }
+
+    private int findTorchInHotbar() {
+        assert mc.player != null;
+        var inv = mc.player.getInventory();
+        for (int i = 0; i < 9; i++) {
+            if (inv.getStack(i).isOf(Items.TORCH)) return i;
+        }
+        return -1;
+    }
+
+    // Returns the PlayerScreenHandler slot index (9-35) of the first torch in the main inventory.
+    private int findTorchInInventory() {
+        assert mc.player != null;
+        var handler = mc.player.playerScreenHandler;
+        for (int screenSlot = 9; screenSlot <= 35; screenSlot++) {
+            if (handler.getSlot(screenSlot).getStack().isOf(Items.TORCH)) return screenSlot;
+        }
+        return -1;
+    }
+
+    private int findEmptyHotbarSlot() {
+        assert mc.player != null;
+        var inv = mc.player.getInventory();
+        for (int i = 0; i < 9; i++) {
+            if (inv.getStack(i).isEmpty()) return i;
+        }
+        return -1;
+    }
+}

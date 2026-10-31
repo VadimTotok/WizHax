@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "wizhax",
+  "version": "${version}",
+  "name": "WizHax",
+  "description": "I dont give a fuck :0",
+  "authors": [
+    "Wisuazt"
+  ],
+  "contact": {
+    "sources": "https://github.com/VadimTotok/WizHax"
+  },
+  "environment": "client",
+  "entrypoints": {
+    "meteor": [
+      "dev.wisuazt.wizhax.WizHax"
+    ]
+  },
+  "mixins": [
+    "wizhax.mixins.json"
+  ],
+  "custom": {
+    "meteor-client:color": "225,25,25",
+    "modmenu": {
+      "parent": {
+        "id": "meteor-client"
+      }
+    }
+  },
+  "depends": {
+    "java": ">=21",
+    "minecraft": ["${mc_version}"],
+    "meteor-client": "*"
+  }
+}

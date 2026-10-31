@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "package": "dev.wisuazt.wizhax.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "accessor.FireworkRocketEntityAccessor",
+    "accessor.PlayerInventoryAccessor"
+  ],
+  "client": [
+    "IParticle",
+    "MixinAbstractSignEditScreen",
+    "MixinBlockDustParticle",
+    "MixinCrackParticle",
+    "MixinExplosionLargeParticle",
+    "MixinGameRenderer",
+    "MixinMinecraftClient",
+    "MixinPlayerInventory",
+    "MixinTotemParticle"
+  ]
+}

@@ -1,0 +1,11 @@
+package dev.wisuazt.wizhax.mixin;
+
+import net.minecraft.client.particle.Particle;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
+
+@Mixin(Particle.class)
+public interface IParticle {
+    @Accessor("gravityStrength")
+    void setgravityStrength(float gravity);
+}
