@@ -1,4 +1,4 @@
-<h1 align="center">WizHax</h1>
+<h1 align="center">WizHax 1.21.11</h1>
 
 ## How to install
 1. Download the latest .jar from [releases](https://github.com/VadimTotok/WizHax/releases)
