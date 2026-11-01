@@ -23,23 +23,32 @@ jobs:
 
       - run: chmod +x gradlew
 
-      - run: ./gradlew build
-
-      - name: Get version
+      - name: Determine version
         id: v
-        run: echo "version=$(grep '^mod-version' gradle/libs.versions.toml | cut -d'"' -f2)" >> "$GITHUB_OUTPUT"
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            V="${GITHUB_REF_NAME}"
+          else
+            V=$(grep '^mod-version' gradle/libs.versions.toml | cut -d'"' -f2)
+          fi
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $V"
+
+      - name: Build with Gradle
+        run: ./gradlew build -PmodVersion="${{ steps.v.outputs.version }}"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wizhax-v${{ steps.v.outputs.version }}
-          path: build/libs/wizhax-v*.jar
+          name: wizhax-${{ steps.v.outputs.version }}
+          path: build/libs/wizhax-*.jar
+          if-no-files-found: error
 
       - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           tag_name: ${{ github.ref_name }}
-          name: WizHax v${{ steps.v.outputs.version }}
-          files: build/libs/wizhax-v*.jar
+          name: WizHax ${{ github.ref_name }}
+          files: build/libs/wizhax-*.jar
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

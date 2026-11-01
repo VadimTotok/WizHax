@@ -7,7 +7,9 @@
   },
   "mixins": [
     "accessor.FireworkRocketEntityAccessor",
-    "accessor.PlayerInventoryAccessor"
+    "accessor.PlayerInventoryAccessor",
+    "xaero.MixinMinimapElementRendererHandler",
+    "xaero.MixinMinimapRenderer"
   ],
   "client": [
     "IParticle",
@@ -18,6 +20,7 @@
     "MixinGameRenderer",
     "MixinMinecraftClient",
     "MixinPlayerInventory",
+    "MixinScreenshotRecorder",
     "MixinTotemParticle"
   ]
 }

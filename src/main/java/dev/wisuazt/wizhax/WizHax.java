@@ -51,6 +51,7 @@ public class WizHax extends MeteorAddon {
         Modules.get().add(new AutoTorch());
         Modules.get().add(new AntiInteract());
         Modules.get().add(new DiscordNotifs());
+        Modules.get().add(new ScreenshotCleaner());
 
         LOG.info("WizHax loaded!");
     }
