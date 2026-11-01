@@ -1,5 +1,6 @@
 package dev.wisuazt.wizhax.module;
 
+import dev.wisuazt.wizhax.WizHax;
 import meteordevelopment.meteorclient.settings.BoolSetting;
 import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.Setting;
@@ -41,7 +42,7 @@ public class ScreenshotCleaner extends Module {
     private static PendingScreenshot pending = null;
 
     public ScreenshotCleaner() {
-        super(Categories.Render, "[WizHax] ScreenshotCleaner",
+        super(WizHax.WIZHAX, "[WizHax] ScreenshotCleaner",
             "Hides the minimap and waypoints for clean screenshots (xaero).");
         INSTANCE = this;
     }
