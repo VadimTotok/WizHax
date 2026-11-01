@@ -219,6 +219,18 @@ public class Utils {
         }
     }
 
+    public static void sendWebhookPing(String webhookURL, String roleId, String userId) {
+        StringBuilder sb = new StringBuilder();
+        if (roleId != null && !roleId.isBlank()) sb.append("<@&").append(roleId.trim()).append(">");
+        if (userId != null && !userId.isBlank()) {
+            if (!sb.isEmpty()) sb.append(' ');
+            sb.append("<@").append(userId.trim()).append('>');
+        }
+        if (sb.isEmpty()) return;
+        String json = "{\"content\": \"" + sb + "\"}";
+        sendRequest(webhookURL, json);
+    }
+
     private static void sendRequest(String webhookURL, String json) {
         try {
             URL url = URI.create(webhookURL).toURL();
